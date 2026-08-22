@@ -1,11 +1,16 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  description: MyText
+  description: Buy milk
   list: one
   current_state: pending
 
 two:
-  description: MyText
+  description: Buy eggs
   list: two
   current_state: pending
+
+three:
+  description: Water the plants
+  list: one
+  current_state: completed
