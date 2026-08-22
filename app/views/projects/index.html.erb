@@ -1,0 +1,16 @@
+<h1 class="text-2xl font-bold">Projects</h1>
+
+<% if @projects.empty? %>
+  <p class="mt-4 opacity-60">No projects yet. Run <code>bin/rails db:seed</code> to create some.</p>
+<% else %>
+  <ul class="mt-4 divide-y divide-base-300">
+    <% @projects.each do |project| %>
+      <li>
+        <%= link_to project_path(project), class: "flex items-center justify-between rounded-box p-3 hover:bg-base-300" do %>
+          <span><%= project.name %></span>
+          <span class="badge badge-ghost"><%= project.lists.count %> lists</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

@@ -3,9 +3,9 @@
 one:
   description: MyText
   list: one
-  current_state: MyString
+  current_state: pending
 
 two:
   description: MyText
   list: two
-  current_state: MyString
+  current_state: pending

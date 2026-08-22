@@ -1,0 +1,16 @@
+<h1 class="text-2xl font-bold"><%= @project.name %></h1>
+
+<% if @project.lists.empty? %>
+  <p class="mt-4 opacity-60">No lists in this project yet.</p>
+<% else %>
+  <ul class="mt-4 divide-y divide-base-300">
+    <% @project.lists.order(:name).each do |list| %>
+      <li>
+        <%= link_to project_list_path(@project, list), class: "flex items-center justify-between rounded-box p-3 hover:bg-base-300" do %>
+          <span><%= list.name %></span>
+          <span class="badge badge-ghost"><%= list.items.count %> items</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

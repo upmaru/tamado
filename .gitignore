@@ -7,6 +7,9 @@
 # Ignore bundler config.
 /.bundle
 
+# Ignore node_modules (npm dependencies are in package-lock.json).
+/node_modules
+
 # Ignore all environment files.
 /.env*
 
