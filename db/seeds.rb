@@ -15,14 +15,14 @@ chores = home.lists.find_or_create_by!(name: "Chores")
 sprint = work.lists.find_or_create_by!(name: "Sprint")
 
 [
-  [groceries, "Buy milk", true],
-  [groceries, "Buy eggs", false],
-  [groceries, "Pick up bread", true],
-  [chores, "Fix the leaky tap", false],
-  [chores, "Water the plants", true],
-  [sprint, "Write onboarding docs", false],
-  [sprint, "Review pull requests", true],
-  [sprint, "Plan the release", false]
+  [ groceries, "Buy milk", true ],
+  [ groceries, "Buy eggs", false ],
+  [ groceries, "Pick up bread", true ],
+  [ chores, "Fix the leaky tap", false ],
+  [ chores, "Water the plants", true ],
+  [ sprint, "Write onboarding docs", false ],
+  [ sprint, "Review pull requests", true ],
+  [ sprint, "Plan the release", false ]
 ].each do |list, description, completed|
   item = list.items.find_or_create_by!(description: description)
   item.complete! if completed && item.pending?

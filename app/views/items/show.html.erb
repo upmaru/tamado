@@ -1,0 +1,44 @@
+<header>
+  <%= link_to @item.list.project.name, project_path(@item.list.project), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @item.description %></h1>
+</header>
+
+<section class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title">Audit trail</h2>
+
+    <ul class="timeline timeline-vertical timeline-compact mt-2">
+      <li>
+        <div class="timeline-middle text-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="timeline-end timeline-box">
+          <p class="font-medium">Created as <span class="badge badge-warning">pending</span></p>
+          <time class="mt-1 block text-sm text-base-content/60" datetime="<%= @item.created_at.iso8601 %>"><%= @item.created_at.to_fs(:long) %></time>
+        </div>
+        <% if @transitions.any? %><hr><% end %>
+      </li>
+
+      <% @transitions.each_with_index do |transition, index| %>
+        <li>
+          <hr>
+          <div class="timeline-middle <%= transition.to == "completed" ? "text-success" : "text-base-content/40" %>">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="timeline-end timeline-box">
+            <p class="font-medium">
+              Changed from <span class="badge badge-ghost"><%= transition.from %></span> to
+              <span class="badge <%= transition.to == "completed" ? "badge-success" : "badge-ghost" %>"><%= transition.to %></span>
+            </p>
+            <time class="mt-1 block text-sm text-base-content/60" datetime="<%= transition.created_at.iso8601 %>"><%= transition.created_at.to_fs(:long) %></time>
+          </div>
+          <% unless index == @transitions.size - 1 %><hr><% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</section>

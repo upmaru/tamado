@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="bumblebee">
   <head>
     <title><%= content_for(:title) || "Tamado" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,9 +11,6 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
@@ -23,14 +20,9 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-base-200">
-    <div class="flex min-h-screen">
-      <aside class="w-64 shrink-0 border-r border-base-300 bg-base-100 p-4">
-        <%= render "shared/sidebar" %>
-      </aside>
-      <main class="flex-1 p-6">
-        <%= yield %>
-      </main>
-    </div>
+  <body class="min-h-screen bg-base-200 text-base-content">
+    <main class="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-12">
+      <%= yield %>
+    </main>
   </body>
 </html>

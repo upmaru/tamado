@@ -2,7 +2,7 @@ require "test_helper"
 
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "index lists all projects" do
-    get root_path
+    get projects_path
 
     assert_response :success
     assert_select "h1", "Projects"
@@ -10,12 +10,26 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", project_path(projects(:two))
   end
 
-  test "show displays a project and links to its lists" do
+  test "root redirects to projects" do
+    get root_path
+
+    assert_redirected_to projects_path
+  end
+
+  test "show displays a project's lists and nested items" do
     get project_path(projects(:one))
 
     assert_response :success
     assert_select "h1", projects(:one).name
-    assert_select "a[href=?]", project_list_path(projects(:one), lists(:one))
+    assert_select "h2", lists(:one).name
+    assert_select "a", items(:one).description
+    assert_select "span.badge-warning", text: "pending"
+    assert_select "span.badge-success", text: "completed"
+    assert_select "input.checkbox[type=checkbox]", count: 2
+    assert_select "a[href=?]", item_path(items(:one)), text: items(:one).description
+    assert_select "form[action=?]", project_list_items_path(projects(:one), lists(:one))
+    assert_select "button[data-action='new-item#show']", "+ Item"
+    assert_select "form[hidden][action=?]", project_list_items_path(projects(:one), lists(:one))
   end
 
   test "show is not found for a missing project" do
@@ -24,22 +38,11 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "the sidebar lists every project and highlights the active one" do
-    get project_path(projects(:one))
+  test "the layout uses the bumblebee theme without a sidebar" do
+    get projects_path
 
-    assert_select "nav.menu a[href=?]", project_path(projects(:two))
-    assert_select "nav.menu a.active[href=?]", project_path(projects(:one))
-    assert_select "nav.menu a.active[href=?]", 0, project_path(projects(:two))
-  end
-
-  test "the layout links the compiled tailwind stylesheet and it is served" do
-    get root_path
-
-    match = response.body.match(%r{href="(/assets/tailwind[^"]+\.css)"})
-    assert match, "expected a link to the compiled tailwind stylesheet"
-
-    get match[1]
-    assert_response :success
-    assert_match "daisyUI", response.body
+    assert_select "html[data-theme=bumblebee]"
+    assert_select "aside", count: 0
+    assert_select "main.mx-auto.max-w-3xl"
   end
 end

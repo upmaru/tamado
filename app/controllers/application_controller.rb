@@ -4,11 +4,4 @@ class ApplicationController < ActionController::Base
 
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
-
-  before_action :set_sidebar_projects
-
-  private
-    def set_sidebar_projects
-      @sidebar_projects = Project.order(:name)
-    end
 end

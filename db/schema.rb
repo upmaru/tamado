@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_163519) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,7 +47,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_163519) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "item_state_transitions", "items"
+  add_foreign_key "item_state_transitions", "items", on_delete: :cascade
   add_foreign_key "items", "lists"
   add_foreign_key "lists", "projects"
 end

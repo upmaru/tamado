@@ -1,24 +1,35 @@
-# README
+# Tamado
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Tamado is a Rails project and list tracker.
 
-Things you may want to cover:
+## Setup
 
-* Ruby version
+Tamado requires PostgreSQL, Ruby 4.0.6, and Node.js 20 or newer.
 
-* System dependencies
+```sh
+bin/setup
+```
 
-* Configuration
+The setup script installs Ruby and Node dependencies, compiles the daisyUI stylesheet, and prepares the database.
 
-* Database creation
+## Development
 
-* Database initialization
+```sh
+bin/dev
+```
 
-* How to run the test suite
+Open `http://localhost:3000/projects`. Seed sample projects, lists, and items with:
 
-* Services (job queues, cache servers, search engines, etc.)
+```sh
+bin/rails db:seed
+```
 
-* Deployment instructions
+## Tests and checks
 
-* ...
+```sh
+npm run css:build
+bin/rails test
+bin/ci
+```
+
+The production Docker build compiles the stylesheet before Rails asset precompilation.

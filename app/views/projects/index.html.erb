@@ -1,14 +1,19 @@
-<h1 class="text-2xl font-bold">Projects</h1>
+<header>
+  <h1 class="text-3xl font-bold tracking-tight">Projects</h1>
+  <p class="mt-2 text-base-content/60">Choose a project to see its lists and items.</p>
+</header>
 
 <% if @projects.empty? %>
-  <p class="mt-4 opacity-60">No projects yet. Run <code>bin/rails db:seed</code> to create some.</p>
+  <div class="card mt-8 bg-base-100 shadow-sm">
+    <div class="card-body text-base-content/60">No projects yet. Run <code>bin/rails db:seed</code> to create some.</div>
+  </div>
 <% else %>
-  <ul class="mt-4 divide-y divide-base-300">
+  <ul class="card mt-8 divide-y divide-base-300 overflow-hidden bg-base-100 shadow-sm">
     <% @projects.each do |project| %>
       <li>
-        <%= link_to project_path(project), class: "flex items-center justify-between rounded-box p-3 hover:bg-base-300" do %>
-          <span><%= project.name %></span>
-          <span class="badge badge-ghost"><%= project.lists.count %> lists</span>
+        <%= link_to project_path(project), class: "flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-base-200" do %>
+          <span class="font-medium"><%= project.name %></span>
+          <span class="badge badge-ghost"><%= project.lists.size %> lists</span>
         <% end %>
       </li>
     <% end %>

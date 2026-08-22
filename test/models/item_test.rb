@@ -41,4 +41,10 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal "pending", new_transitions.first.from
     assert_equal "completed", new_transitions.first.to
   end
+
+  test "destroying an item destroys its audit trail transitions" do
+    assert_difference "ItemStateTransition.count", -1 do
+      items(:three).destroy
+    end
+  end
 end

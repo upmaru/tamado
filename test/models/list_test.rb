@@ -6,12 +6,14 @@ class ListTest < ActiveSupport::TestCase
   end
 
   test "a list has many items" do
-    assert_equal [items(:one), items(:three)].map(&:id).sort, lists(:one).items.map(&:id).sort
+    assert_equal [ items(:one), items(:three) ].map(&:id).sort, lists(:one).items.map(&:id).sort
   end
 
   test "destroying a list destroys its items" do
     assert_difference "Item.count", -2 do
-      lists(:one).destroy
+      assert_difference "ItemStateTransition.count", -1 do
+        lists(:one).destroy
+      end
     end
   end
 end

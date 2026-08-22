@@ -1,16 +1,43 @@
-<h1 class="text-2xl font-bold"><%= @project.name %></h1>
+<header>
+  <%= link_to "Projects", projects_path, class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @project.name %></h1>
+</header>
 
-<% if @project.lists.empty? %>
-  <p class="mt-4 opacity-60">No lists in this project yet.</p>
+<% if @lists.empty? %>
+  <div class="card mt-8 bg-base-100 shadow-sm">
+    <div class="card-body text-base-content/60">No lists in this project yet.</div>
+  </div>
 <% else %>
-  <ul class="mt-4 divide-y divide-base-300">
-    <% @project.lists.order(:name).each do |list| %>
-      <li>
-        <%= link_to project_list_path(@project, list), class: "flex items-center justify-between rounded-box p-3 hover:bg-base-300" do %>
-          <span><%= list.name %></span>
-          <span class="badge badge-ghost"><%= list.items.count %> items</span>
-        <% end %>
-      </li>
+  <div class="mt-8 space-y-5">
+    <% @lists.each do |list| %>
+      <section class="card bg-base-100 shadow-sm">
+        <div class="card-body gap-4">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="card-title"><%= list.name %></h2>
+            <span class="badge badge-ghost"><%= list.items.size %> items</span>
+          </div>
+
+          <% if list.items.empty? %>
+            <p id="<%= dom_id(list, :empty) %>" class="text-sm text-base-content/60">No items in this list yet.</p>
+          <% end %>
+
+          <ul id="<%= dom_id(list, :items) %>" class="divide-y divide-base-300">
+            <%= render partial: "items/item", collection: list.items, as: :item, locals: { project: @project } %>
+          </ul>
+
+          <div class="w-full" data-controller="new-item">
+            <div class="mt-4 w-full border-t border-base-300 pt-4 text-center" data-new-item-target="button">
+              <button type="button" class="btn btn-ghost px-5" data-action="new-item#show">+ Item</button>
+            </div>
+
+            <%= form_with url: project_list_items_path(@project, list), scope: :item, class: "flex gap-2", html: { hidden: true }, data: { turbo_stream: true, new_item_target: "form", action: "turbo:submit-end->new-item#reset" } do |form| %>
+              <%= form.text_field :description, class: "input input-bordered min-w-0 flex-1", placeholder: "Add an item", required: true, autocomplete: "off", data: { new_item_target: "input" } %>
+              <%= form.submit "Add", class: "btn btn-primary" %>
+              <button type="button" class="btn btn-ghost" data-action="new-item#hide">Cancel</button>
+            <% end %>
+          </div>
+        </div>
+      </section>
     <% end %>
-  </ul>
+  </div>
 <% end %>

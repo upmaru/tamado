@@ -1,0 +1,2 @@
+<%= turbo_stream.append dom_id(@list, :items), partial: "items/item", locals: { item: @item, project: @project } %>
+<%= turbo_stream.remove dom_id(@list, :empty) %>

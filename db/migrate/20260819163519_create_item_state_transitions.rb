@@ -7,7 +7,6 @@ class CreateItemStateTransitions < ActiveRecord::Migration[8.1]
       t.string :from
       t.string :to
       t.timestamp :created_at
-
     end
   end
 end
