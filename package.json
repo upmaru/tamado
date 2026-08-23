@@ -2,12 +2,7 @@
   "name": "tamado",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "css:build": "tailwindcss -i app/assets/tailwind/application.css -o app/assets/builds/tailwind.css",
-    "css:watch": "tailwindcss -i app/assets/tailwind/application.css -o app/assets/builds/tailwind.css --watch"
-  },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.3",
     "daisyui": "^5.7.20"
   }
 }

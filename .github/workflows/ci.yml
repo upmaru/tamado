@@ -103,7 +103,7 @@ jobs:
           cache: npm
 
       - name: Build stylesheets
-        run: npm ci && npm run css:build
+        run: npm ci && bin/rails tailwindcss:build
 
       - name: Run tests
         env:

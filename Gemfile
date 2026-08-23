@@ -14,6 +14,8 @@ gem "importmap-rails"
 gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
+# Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
+gem "tailwindcss-rails", "~> 4.6"
 # Persisted state machines and their transition audit history.
 gem "state_machines-activerecord", "~> 0.200"
 gem "state_machines-audit_trail", "~> 3.0"

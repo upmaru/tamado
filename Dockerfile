@@ -47,15 +47,16 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
-# Compile the daisyUI stylesheet before Rails precompiles assets.
-RUN npm ci && npm run css:build && rm -rf node_modules
+# Install daisyUI so Tailwind can resolve the plugin during asset precompilation.
+RUN npm ci
 
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompiling assets for production without requiring secret RAILS_MASTER_KEY.
+# tailwindcss-rails compiles and minifies the stylesheet as part of this task.
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && rm -rf node_modules
 
 
 
