@@ -6,6 +6,8 @@ class Item < ApplicationRecord
 
   attr_accessor :actor
 
+  validates :description, presence: true
+
   state_machine :current_state, initial: :pending do
     audit_trail class: Item::StateTransition, context: :user_id, initial: false
     event :complete do

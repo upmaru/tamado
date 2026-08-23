@@ -4,12 +4,15 @@
     <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @item.description %></h1>
   </div>
 
-  <%= link_to "+ Event", new_item_event_path(@item), class: "btn btn-primary" %>
+  <%= link_to "Edit", edit_item_path(@item), class: "btn btn-ghost" %>
 </header>
 
 <section class="card mt-8 bg-base-100 shadow-sm">
   <div class="card-body">
-    <h2 class="card-title">Events</h2>
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="card-title">Events</h2>
+      <%= link_to "+ Event", new_item_event_path(@item), class: "btn btn-primary" %>
+    </div>
 
     <% if @events.any? %>
       <ul class="divide-y divide-base-300">

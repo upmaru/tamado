@@ -13,18 +13,36 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @item = Item
-             .joins(list: :project)
-             .where(id: params[:id], projects: { user_id: current_user.id })
-             .includes(list: :project)
-             .first
+    @item = find_item(params[:id])
     return head :not_found unless @item
 
     @events = @item.events.order(:created_at)
     @transitions = @item.state_transitions.where.not(from: [ nil, "" ]).order(:created_at)
   end
 
+  def edit
+    @item = find_item(params[:id])
+    head :not_found unless @item
+  end
+
   def update
+    if params[:project_id].present?
+      complete_item
+    else
+      edit_item
+    end
+  end
+
+  private
+
+  def find_item(item_id)
+    Item.joins(list: :project)
+        .where(id: item_id, projects: { user_id: current_user.id })
+        .includes(list: :project)
+        .first
+  end
+
+  def complete_item
     project = current_user.projects.find(params[:project_id])
     item = project.items.find(params[:id])
     item.actor = current_user
@@ -33,7 +51,16 @@ class ItemsController < ApplicationController
     redirect_to project
   end
 
-  private
+  def edit_item
+    @item = find_item(params[:id])
+    return head :not_found unless @item
+
+    if @item.update(item_params)
+      redirect_to item_path(@item)
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
 
   def item_params
     params.expect(item: :description)

@@ -1,0 +1,27 @@
+<header>
+  <%= link_to @item.description, item_path(@item), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight">Edit item</h1>
+</header>
+
+<div class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <% if @item.errors.any? %>
+      <div class="alert alert-error">
+        <ul>
+          <% @item.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with url: item_path(@item), method: :patch, scope: :item, class: "flex flex-col gap-4" do |form| %>
+      <%= form.text_field :description, class: "input input-bordered w-full", placeholder: "Description", required: true, autocomplete: "off" %>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <%= link_to "Cancel", item_path(@item), class: "btn btn-ghost" %>
+        <%= form.submit "Save", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
       resources :items, only: :create
     end
   end
-  resources :items, only: :show do
+  resources :items, only: %i[show edit update] do
     resources :events, only: %i[new create], controller: "item/events"
   end
 end

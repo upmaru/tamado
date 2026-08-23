@@ -16,6 +16,13 @@ class ItemTest < ActiveSupport::TestCase
     assert item.errors[:creator].any?
   end
 
+  test "an item requires a description" do
+    item = Item.new(list: lists(:one), creator: users(:one))
+
+    assert_not item.valid?
+    assert item.errors[:description].any?
+  end
+
   test "pending item can be completed" do
     item = items(:one)
 

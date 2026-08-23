@@ -34,6 +34,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", items(:three).description
     assert_select "h2", "Audit trail"
+    assert_select "a", "Edit"
     assert_select "a", "+ Event"
     assert_select "p", /Created as/
     assert_select "span.badge-warning", "pending"
@@ -70,6 +71,44 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "p", /Created as/
     assert_select "p", { text: /Changed from/, count: 0 }
+  end
+
+  test "shows the edit page with the current description" do
+    get edit_item_path(items(:one))
+
+    assert_response :success
+    assert_select "h1", "Edit item"
+    assert_select "input[name=?]", "item[description]"
+    assert_select "input[value=?]", items(:one).description
+  end
+
+  test "updates an item's description and redirects to the item" do
+    item = items(:one)
+
+    patch item_path(item), params: { item: { description: "Buy oat milk" } }
+
+    assert_redirected_to item_path(item)
+    assert_equal "Buy oat milk", item.reload.description
+  end
+
+  test "re-renders the edit page when the description is blank" do
+    item = items(:one)
+
+    patch item_path(item), params: { item: { description: "" } }
+
+    assert_response :unprocessable_entity
+    assert_equal item.reload.description, "Buy milk"
+  end
+
+  test "cannot edit another user's item" do
+    sign_in users(:two)
+
+    get edit_item_path(items(:one))
+    assert_response :not_found
+
+    patch item_path(items(:one)), params: { item: { description: "Hijacked" } }
+    assert_response :not_found
+    assert_equal "Buy milk", items(:one).reload.description
   end
 
   test "completes a pending item and attributes the transition to the actor" do
