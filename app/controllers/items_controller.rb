@@ -1,8 +1,10 @@
 class ItemsController < ApplicationController
   def create
-    @project = Project.find(params[:project_id])
+    @project = current_user.projects.find(params[:project_id])
     @list = @project.lists.find(params[:list_id])
-    @item = @list.items.create!(item_params)
+    @item = @list.items.new(item_params)
+    @item.creator = current_user
+    @item.save!
 
     respond_to do |format|
       format.html { redirect_to @project }
@@ -11,13 +13,21 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @item = Item.includes(list: :project).find(params[:id])
-    @transitions = @item.item_state_transitions.where.not(from: [ nil, "" ]).order(:created_at)
+    @item = Item
+             .joins(list: :project)
+             .where(id: params[:id], projects: { user_id: current_user.id })
+             .includes(list: :project)
+             .first
+    return head :not_found unless @item
+
+    @events = @item.events.order(:created_at)
+    @transitions = @item.state_transitions.where.not(from: [ nil, "" ]).order(:created_at)
   end
 
   def update
-    project = Project.find(params[:project_id])
+    project = current_user.projects.find(params[:project_id])
     item = project.items.find(params[:id])
+    item.actor = current_user
     item.complete! if item.pending?
 
     redirect_to project

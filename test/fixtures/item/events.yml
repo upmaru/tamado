@@ -1,0 +1,8 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  item: one
+  kind: due_date
+  data: { at: "2027-08-25T09:00:00.000Z" }
+  created_at: 2026-08-19 23:36:00
+  updated_at: 2026-08-19 23:36:00

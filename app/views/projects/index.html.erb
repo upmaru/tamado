@@ -1,11 +1,15 @@
-<header>
-  <h1 class="text-3xl font-bold tracking-tight">Projects</h1>
-  <p class="mt-2 text-base-content/60">Choose a project to see its lists and items.</p>
+<header class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Projects</h1>
+    <p class="mt-2 text-base-content/60">Choose a project to see its lists and items.</p>
+  </div>
+
+  <%= link_to "+ Project", new_project_path, class: "btn btn-primary" %>
 </header>
 
 <% if @projects.empty? %>
   <div class="card mt-8 bg-base-100 shadow-sm">
-    <div class="card-body text-base-content/60">No projects yet. Run <code>bin/rails db:seed</code> to create some.</div>
+    <div class="card-body text-base-content/60">No projects yet. Use + Project to create your first one.</div>
   </div>
 <% else %>
   <ul class="card mt-8 divide-y divide-base-300 overflow-hidden bg-base-100 shadow-sm">

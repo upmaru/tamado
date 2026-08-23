@@ -1,0 +1,16 @@
+<header>
+  <%= link_to @project.name, project_path(@project), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight">New list</h1>
+</header>
+
+<div class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <%= form_with url: project_lists_path(@project), scope: :list do |form| %>
+      <%= form.text_field :name, class: "input input-bordered w-full", placeholder: "List name", required: true, autocomplete: "off" %>
+      <div class="flex justify-end gap-2 pt-2">
+        <%= link_to "Cancel", project_path(@project), class: "btn btn-ghost" %>
+        <%= form.submit "Create", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

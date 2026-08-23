@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_161653) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "item_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.uuid "item_id", null: false
+    t.string "kind", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id", "kind", "created_at"], name: "index_item_events_on_item_id_and_kind_and_created_at"
+    t.index ["item_id"], name: "index_item_events_on_item_id"
+  end
 
   create_table "item_state_transitions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", precision: nil
@@ -21,15 +31,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
     t.uuid "item_id", null: false
     t.string "namespace"
     t.string "to"
+    t.uuid "user_id", null: false
     t.index ["item_id"], name: "index_item_state_transitions_on_item_id"
+    t.index ["user_id"], name: "index_item_state_transitions_on_user_id"
   end
 
   create_table "items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.uuid "creator_id", null: false
     t.string "current_state"
     t.text "description"
     t.uuid "list_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_items_on_creator_id"
     t.index ["list_id"], name: "index_items_on_list_id"
   end
 
@@ -45,9 +59,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
     t.datetime "created_at", null: false
     t.string "name"
     t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+  end
+
+  add_foreign_key "item_events", "items", on_delete: :cascade
   add_foreign_key "item_state_transitions", "items", on_delete: :cascade
+  add_foreign_key "item_state_transitions", "users"
   add_foreign_key "items", "lists"
+  add_foreign_key "items", "users", column: "creator_id"
   add_foreign_key "lists", "projects"
+  add_foreign_key "projects", "users"
 end

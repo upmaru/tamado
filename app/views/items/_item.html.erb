@@ -5,5 +5,8 @@
     <% end %>
     <%= link_to item.description, item_path(item), class: "min-w-0 truncate hover:underline #{"text-base-content/60 line-through" if item.completed?}" %>
   </div>
+  <% if item.due_at.present? %>
+    <span class="badge shrink-0 <%= item.overdue? ? "badge-error" : "badge-ghost" %>"><%= item.due_at.to_fs(:short) %></span>
+  <% end %>
   <span class="badge shrink-0 <%= item.completed? ? "badge-success" : "badge-warning" %>"><%= item.current_state %></span>
 </li>

@@ -1,0 +1,37 @@
+<header>
+  <%= link_to @item.description, item_path(@item), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight">New event</h1>
+</header>
+
+<div class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <% if @event.errors.any? %>
+      <div class="alert alert-error">
+        <ul>
+          <% @event.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with url: item_events_path(@item), scope: :event, class: "flex flex-col gap-4" do |form| %>
+      <div class="flex flex-wrap items-end gap-2">
+        <div class="flex w-48 flex-col gap-1">
+          <%= form.label :kind, "Type", class: "text-sm text-base-content/60" %>
+          <%= form.select :kind, options_for_select(Item::Event::KINDS, @event.kind), { include_blank: "Select a type" }, { class: "select select-bordered" } %>
+        </div>
+
+        <div class="flex w-56 flex-col gap-1">
+          <label for="event_at" class="text-sm text-base-content/60">Date &amp; time</label>
+          <%= tag.input type: "datetime", name: "event[at]", id: "event_at", class: "input input-bordered", placeholder: "Date &amp; time", aria: { label: "Date and time" } %>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <%= link_to "Cancel", item_path(@item), class: "btn btn-ghost" %>
+        <%= form.submit "Create", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

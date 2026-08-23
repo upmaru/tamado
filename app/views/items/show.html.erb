@@ -1,7 +1,35 @@
-<header>
-  <%= link_to @item.list.project.name, project_path(@item.list.project), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
-  <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @item.description %></h1>
+<header class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <%= link_to @item.list.project.name, project_path(@item.list.project), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @item.description %></h1>
+  </div>
+
+  <%= link_to "+ Event", new_item_event_path(@item), class: "btn btn-primary" %>
 </header>
+
+<section class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title">Events</h2>
+
+    <% if @events.any? %>
+      <ul class="divide-y divide-base-300">
+        <% @events.each do |event| %>
+          <li class="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
+            <span class="badge badge-ghost"><%= event.kind.humanize %></span>
+            <span class="flex items-center gap-2">
+              <% if event.kind == "due_date" && @item.overdue? && event.at == @item.due_at %>
+                <span class="badge badge-error">Overdue</span>
+              <% end %>
+              <time datetime="<%= event.at&.iso8601 %>"><%= event.at&.to_fs(:long) %></time>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-base-content/60">No events. Use + Event to add one.</p>
+    <% end %>
+  </div>
+</section>
 
 <section class="card mt-8 bg-base-100 shadow-sm">
   <div class="card-body">
@@ -16,6 +44,7 @@
         </div>
         <div class="timeline-end timeline-box">
           <p class="font-medium">Created as <span class="badge badge-warning">pending</span></p>
+          <p class="text-sm text-base-content/60">by <%= @item.creator.email %></p>
           <time class="mt-1 block text-sm text-base-content/60" datetime="<%= @item.created_at.iso8601 %>"><%= @item.created_at.to_fs(:long) %></time>
         </div>
         <% if @transitions.any? %><hr><% end %>
@@ -34,6 +63,7 @@
               Changed from <span class="badge badge-ghost"><%= transition.from %></span> to
               <span class="badge <%= transition.to == "completed" ? "badge-success" : "badge-ghost" %>"><%= transition.to %></span>
             </p>
+            <p class="text-sm text-base-content/60">by <%= transition.user.email %></p>
             <time class="mt-1 block text-sm text-base-content/60" datetime="<%= transition.created_at.iso8601 %>"><%= transition.created_at.to_fs(:long) %></time>
           </div>
           <% unless index == @transitions.size - 1 %><hr><% end %>

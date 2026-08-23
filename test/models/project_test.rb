@@ -12,8 +12,10 @@ class ProjectTest < ActiveSupport::TestCase
   test "destroying a project destroys its lists and their items" do
     assert_difference "List.count", -1 do
       assert_difference "Item.count", -2 do
-        assert_difference "ItemStateTransition.count", -1 do
-          projects(:one).destroy
+        assert_difference "Item::StateTransition.count", -1 do
+          assert_difference "Item::Event.count", -1 do
+            projects(:one).destroy
+          end
         end
       end
     end

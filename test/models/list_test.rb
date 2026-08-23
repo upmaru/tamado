@@ -11,8 +11,10 @@ class ListTest < ActiveSupport::TestCase
 
   test "destroying a list destroys its items" do
     assert_difference "Item.count", -2 do
-      assert_difference "ItemStateTransition.count", -1 do
-        lists(:one).destroy
+      assert_difference "Item::StateTransition.count", -1 do
+        assert_difference "Item::Event.count", -1 do
+          lists(:one).destroy
+        end
       end
     end
   end

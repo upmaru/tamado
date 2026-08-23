@@ -1,0 +1,22 @@
+<div class="mx-auto mt-10 w-full max-w-sm">
+  <header class="text-center">
+    <h1 class="text-3xl font-bold tracking-tight">Sign up</h1>
+    <p class="mt-2 text-base-content/60">Create your Tamado account.</p>
+  </header>
+
+  <div class="card mt-8 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <%= form_with url: auth_registrations_path, scope: :user, class: "space-y-3" do |form| %>
+        <%= form.email_field :email, class: "input input-bordered w-full", placeholder: "Email", required: true, autocomplete: "email", autofocus: true %>
+        <%= form.password_field :password, class: "input input-bordered w-full", placeholder: "Password", required: true, autocomplete: "new-password" %>
+        <%= form.password_field :password_confirmation, class: "input input-bordered w-full", placeholder: "Confirm password", required: true, autocomplete: "new-password" %>
+        <%= form.submit "Sign up", class: "btn btn-primary w-full" %>
+      <% end %>
+
+      <p class="mt-4 text-center text-sm text-base-content/60">
+        Already have an account?
+        <%= link_to "Log in", new_auth_session_path, class: "link link-primary" %>
+      </p>
+    </div>
+  </div>
+</div>

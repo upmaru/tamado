@@ -7,11 +7,19 @@ Rails.application.routes.draw do
 
   root to: redirect("/projects")
 
-  resources :projects, only: %i[index show] do
+  namespace :auth do
+    resources :registrations, only: %i[new create]
+    resources :sessions, only: %i[new create]
+    delete "sessions/destroy", to: "sessions#destroy", as: :logout
+  end
+
+  resources :projects, only: %i[index show new create] do
     resources :items, only: :update
-    resources :lists, only: [] do
+    resources :lists, only: %i[new create] do
       resources :items, only: :create
     end
   end
-  resources :items, only: :show
+  resources :items, only: :show do
+    resources :events, only: %i[new create], controller: "item/events"
+  end
 end
