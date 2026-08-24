@@ -2,6 +2,20 @@
   <div>
     <%= link_to @item.list.project.name, project_path(@item.list.project), class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
     <h1 class="mt-2 text-3xl font-bold tracking-tight"><%= @item.description %></h1>
+    <% if @item.tags.any? %>
+      <div class="mt-3 flex flex-wrap gap-1.5">
+        <% @item.taggings.includes(:tag).each do |tagging| %>
+          <span class="badge badge-ghost gap-1">
+            <%= link_to "##{tagging.tag.name}", items_path(tag_ids: [ tagging.tag.id ]) %>
+            <%= link_to item_tagging_path(@item, tagging),
+                  class: "hover:opacity-60",
+                  data: { turbo_method: :delete, turbo_confirm: "Remove ##{tagging.tag.name}?" } do %>
+              <%= icon "x", class: "size-3" %>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <%= link_to "Edit", edit_item_path(@item), class: "btn btn-ghost" %>

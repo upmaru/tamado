@@ -1,0 +1,48 @@
+<header>
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Items</h1>
+    <p class="mt-1 text-sm text-base-content/60"><%= @items.size %> item<%= "s" unless @items.size == 1 %></p>
+  </div>
+</header>
+
+<% if @tags.any? %>
+  <div class="mt-4 flex flex-wrap gap-1.5">
+    <% @tags.each do |tag| %>
+      <% remaining = @tag_ids - [ tag.id ] %>
+      <span class="badge badge-ghost gap-1">
+        #<%= tag.name %>
+        <%= link_to (remaining.any? ? items_path(tag_ids: remaining) : items_path), class: "hover:opacity-60", title: "Remove filter" do %>
+          <%= icon "x", class: "size-3" %>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+<% end %>
+
+<section class="card mt-8 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <% if @items.any? %>
+      <ul class="divide-y divide-base-300">
+        <% @items.each do |item| %>
+          <li class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="badge badge-outline badge-xs shrink-0" title="<%= item.list.project.name %>"><%= item.list.name %></span>
+              <%= link_to item.description, item_path(item), class: "min-w-0 truncate hover:underline #{"text-base-content/60 line-through" if item.completed?}" %>
+              <% item.tags.each do |tag| %>
+                <%= link_to "##{tag.name}", items_path(tag_ids: [ tag.id ]), class: "badge badge-ghost badge-xs shrink-0" %>
+              <% end %>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <% if item.due_at.present? %>
+                <span class="badge shrink-0 <%= item.overdue? ? "badge-error" : "badge-ghost" %>"><%= item.due_at.to_fs(:short) %></span>
+              <% end %>
+              <span class="badge shrink-0 <%= item.completed? ? "badge-success" : item.seen? ? "badge-info" : "badge-warning" %>"><%= item.current_state %></span>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-base-content/60"><%= @tag_ids.any? ? "No items match the selected tags." : "No items yet." %></p>
+    <% end %>
+  </div>
+</section>

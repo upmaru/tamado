@@ -24,6 +24,7 @@
     <main class="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-6 sm:px-6 sm:py-10">
       <header class="mb-6 flex items-center justify-between gap-4">
         <span class="text-lg font-bold tracking-tight">Tamado</span>
+        <%= link_to "Items", items_path, class: "text-sm text-base-content/60 transition-colors hover:text-base-content" %>
         <div class="flex items-center gap-2">
           <% if current_user %>
             <span class="hidden text-sm text-base-content/60 sm:inline"><%= current_user.email %></span>

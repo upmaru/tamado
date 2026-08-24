@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_055603) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_104225) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_055603) do
     t.index ["user_id"], name: "index_item_state_transitions_on_user_id"
   end
 
+  create_table "item_taggings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "item_id", null: false
+    t.uuid "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_item_taggings_on_item_id"
+    t.index ["tag_id", "item_id"], name: "index_item_taggings_on_tag_id_and_item_id", unique: true
+    t.index ["tag_id"], name: "index_item_taggings_on_tag_id"
+  end
+
   create_table "items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.uuid "creator_id", null: false
@@ -92,6 +102,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_055603) do
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
+  create_table "tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -105,6 +122,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_055603) do
   add_foreign_key "item_events", "items", on_delete: :cascade
   add_foreign_key "item_state_transitions", "items", on_delete: :cascade
   add_foreign_key "item_state_transitions", "users"
+  add_foreign_key "item_taggings", "items", on_delete: :cascade
+  add_foreign_key "item_taggings", "tags", on_delete: :cascade
   add_foreign_key "items", "lists"
   add_foreign_key "items", "users", column: "creator_id"
   add_foreign_key "lists", "projects"

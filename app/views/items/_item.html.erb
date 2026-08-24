@@ -12,6 +12,9 @@
       </span>
     <% end %>
     <%= link_to item.description, item_path(item), class: "min-w-0 truncate hover:underline #{"text-base-content/60 line-through" if item.completed?}" %>
+    <% item.tags.each do |tag| %>
+      <%= link_to "##{tag.name}", items_path(tag_ids: [ tag.id ]), class: "badge badge-ghost badge-xs shrink-0" %>
+    <% end %>
   </div>
   <% if item.attachments.any? %>
     <span class="badge shrink-0 gap-1 badge-ghost" title="<%= item.attachments.size %> image<%= "s" if item.attachments.size != 1 %>">

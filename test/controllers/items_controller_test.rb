@@ -15,6 +15,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Schedule dentist appointment", response.body
   end
 
+  test "creates an item tagged from hashtags in the description" do
+    post project_list_items_path(projects(:one), lists(:one)), params: { item: { description: "Prepare the #demo deck" } }, as: :turbo_stream
+
+    item = Item.order(:created_at).last
+    assert_equal "Prepare the deck", item.description
+    assert_equal [ "demo" ], item.tags.map(&:name)
+  end
+
   test "the created item is attributed to the signed-in user" do
     post project_list_items_path(projects(:one), lists(:one)), params: { item: { description: "Schedule dentist appointment" } }, as: :turbo_stream
 
@@ -124,6 +132,69 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to item_path(item)
     assert_equal "Buy oat milk", item.reload.description
+  end
+
+  test "updates an item's tags when its description hashtags change" do
+    item = items(:one)
+
+    patch item_path(item), params: { item: { description: "Buy oat milk for the #errands run" } }
+
+    assert_redirected_to item_path(item)
+    assert_equal [ "errands" ], item.reload.tags.map(&:name)
+  end
+
+  test "shows an item's tags" do
+    item = Item.create!(list: lists(:one), description: "Prepare the #demo deck", creator: users(:one))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "a[href=?]", items_path(tag_ids: [ item.tags.first.id ])
+    assert_select "a", "#demo"
+    assert_select "a[href=?][data-turbo-method=?]", item_tagging_path(item, item.taggings.first), "delete"
+  end
+
+  test "lists only the signed-in user's items" do
+    get items_path
+
+    assert_response :success
+    assert_select "a[href=?]", item_path(items(:one))
+    assert_select "a[href=?]", item_path(items(:three))
+    assert_select "a[href=?]", item_path(items(:four))
+    assert_select "a[href=?]", item_path(items(:two)), count: 0
+  end
+
+  test "filters items by the tags they have" do
+    get items_path(tag_ids: [ tags(:one).id ])
+
+    assert_response :success
+    assert_select "a[href=?]", item_path(items(:one))
+    assert_select "a[href=?]", item_path(items(:three)), count: 0
+    assert_select "a[href=?]", item_path(items(:four)), count: 0
+  end
+
+  test "matches any of several selected tags" do
+    get items_path(tag_ids: [ tags(:one).id, tags(:two).id ])
+
+    assert_response :success
+    assert_select "a[href=?]", item_path(items(:one))
+    assert_select "a[href=?]", item_path(items(:three))
+    assert_select "a[href=?]", item_path(items(:four)), count: 0
+  end
+
+  test "shows an empty state for an unknown tag id" do
+    get items_path(tag_ids: [ "00000000-0000-0000-0000-000000000000" ])
+
+    assert_response :success
+    assert_select "p", "No items match the selected tags."
+  end
+
+  test "offers a link to clear an active tag filter" do
+    get items_path(tag_ids: [ tags(:one).id, tags(:two).id ])
+
+    assert_response :success
+    assert_select "a[href=?]", items_path(tag_ids: [ tags(:one).id ])
+    assert_select "a[href=?]", items_path
   end
 
   test "re-renders the edit page when the description is blank" do

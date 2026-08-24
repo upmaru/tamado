@@ -242,6 +242,75 @@ class ItemTest < ActiveSupport::TestCase
     end
   end
 
+  test "creating an item with hashtags creates missing tags and links them" do
+    item = Item.create!(list: lists(:one), description: "Create the demo #demo for the work #work review", creator: users(:one))
+
+    assert_equal "Create the demo for the work review", item.reload.description
+    assert_equal %w[demo work], item.reload.tags.map(&:name)
+  end
+
+  test "a description consisting only of hashtags keeps its text" do
+    item = Item.create!(list: lists(:one), description: "#work #home", creator: users(:one))
+
+    assert_equal "#work #home", item.reload.description
+    assert_equal %w[home work], item.reload.tags.map(&:name)
+  end
+
+  test "hashtags are matched case-insensitively and deduplicated" do
+    item = Item.create!(list: lists(:one), description: "Review the #Work budget and #work plan", creator: users(:one))
+
+    assert_equal [ "work" ], item.reload.tags.map(&:name)
+  end
+
+  test "an item without hashtags has no tags" do
+    item = Item.create!(list: lists(:one), description: "Buy milk", creator: users(:one))
+
+    assert item.tags.empty?
+  end
+
+  test "a hash without word characters is not a hashtag" do
+    item = Item.create!(list: lists(:one), description: "Learn C# basics", creator: users(:one))
+
+    assert item.tags.empty?
+  end
+
+  test "updating an item's description syncs its tags" do
+    item = Item.create!(list: lists(:one), description: "Task #one #two", creator: users(:one))
+    assert_equal %w[one two], item.tags.map(&:name)
+
+    item.update!(description: "Task #two #three")
+
+    assert_equal "Task", item.reload.description
+    assert_equal %w[three two], item.reload.tags.map(&:name)
+  end
+
+  test "editing the description without hashtags keeps existing tags" do
+    item = Item.create!(list: lists(:one), description: "Temporary #scratch task", creator: users(:one))
+    assert_equal [ "scratch" ], item.tags.map(&:name)
+
+    item.update!(description: "Just a task")
+
+    assert_equal [ "scratch" ], item.reload.tags.map(&:name)
+  end
+
+  test "saving an item without new hashtags does not duplicate its tags" do
+    item = Item.create!(list: lists(:one), description: "Task for #scratch", creator: users(:one))
+
+    item.save!
+
+    assert_equal [ "scratch" ], item.reload.tags.map(&:name)
+    assert_equal 1, Item::Tagging.where(item_id: item.id).count
+  end
+
+  test "destroying an item removes its taggings but keeps the tags" do
+    item = Item.create!(list: lists(:one), description: "Temporary #scratch task", creator: users(:one))
+
+    item.destroy
+
+    assert Item::Tagging.where(item_id: item.id).none?
+    assert Tag.exists?(name: "scratch")
+  end
+
   def sample_image(filename)
     { io: File.open(Rails.root.join("test/fixtures/files/sample.png")), filename: filename, content_type: "image/png" }
   end
