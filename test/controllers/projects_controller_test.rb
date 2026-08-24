@@ -61,8 +61,12 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", lists(:one).name
     assert_select "a", items(:one).description
     assert_select "span.badge-warning", text: "pending"
+    assert_select "span.badge-info", text: "seen"
     assert_select "span.badge-success", text: "completed"
-    assert_select "input.checkbox[type=checkbox]", count: 2
+    assert_select "input.checkbox[type=checkbox]", count: 3
+    assert_select "span.tooltip[data-tip=Seen]", count: 1
+    assert_select "button[data-reorder-target=handle]", count: 3
+    assert_select "ul[data-controller=reorder]", count: 1
     assert_select "a[href=?]", item_path(items(:one)), text: items(:one).description
     assert_select "form[action=?]", project_list_items_path(projects(:one), lists(:one))
     assert_select "button[data-action='new-item#show']", "+ Item"

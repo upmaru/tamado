@@ -6,6 +6,23 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
+# S3-compatible RustFS instance running in the dev docker compose stack.
+# Access/secret keys come from Rails credentials (see `bin/rails credentials:edit`):
+#   rustfs:
+#     access_key_id: ...
+#     secret_access_key: ...
+rustfs:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.rustfs&.dig(:access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.rustfs&.dig(:secret_access_key) %>
+  region: us-east-1
+  bucket: tamado
+  # OrbStack service address for the RustFS container (resolves on the host).
+  endpoint: http://rustfs.tamado.orb.local:9000
+  # RustFS 1.0.0-beta.6 only serves S3 in path-style (/bucket/key); the
+  # virtual-hosted style (bucket.host) the AWS SDK defaults to is rejected.
+  force_path_style: true
+
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
 #   service: S3

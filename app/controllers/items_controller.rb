@@ -16,6 +16,9 @@ class ItemsController < ApplicationController
     @item = find_item(params[:id])
     return head :not_found unless @item
 
+    @item.actor = current_user
+    @item.seen! if @item.pending?
+
     @events = @item.events.order(:created_at)
     @transitions = @item.state_transitions.where.not(from: [ nil, "" ]).order(:created_at)
   end
@@ -46,7 +49,7 @@ class ItemsController < ApplicationController
     project = current_user.projects.find(params[:project_id])
     item = project.items.find(params[:id])
     item.actor = current_user
-    item.complete! if item.pending?
+    item.complete! if item.can_complete?
 
     redirect_to project
   end

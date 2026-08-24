@@ -48,7 +48,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "a user has many created items" do
-    assert_equal [ items(:one), items(:three) ].map(&:id).sort, users(:one).created_items.map(&:id).sort
+    assert_equal [ items(:one), items(:three), items(:four) ].map(&:id).sort, users(:one).created_items.map(&:id).sort
   end
 
   test "a user has many item state transitions" do

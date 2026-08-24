@@ -17,9 +17,11 @@ Rails.application.routes.draw do
     resources :items, only: :update
     resources :lists, only: %i[new create] do
       resources :items, only: :create
+      resource :position, only: :update, controller: "item/positions"
     end
   end
   resources :items, only: %i[show edit update] do
     resources :events, only: %i[new create], controller: "item/events"
+    resources :attachments, only: %i[create destroy], controller: "item/attachments"
   end
 end

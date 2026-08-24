@@ -1,12 +1,30 @@
-<li id="<%= dom_id(item) %>" class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+<li id="<%= dom_id(item) %>" data-id="<%= item.id %>" class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
   <div class="flex min-w-0 items-center gap-3">
+    <button type="button" class="btn btn-ghost btn-xs -ml-1 shrink-0 cursor-grab text-base-content/40 transition-colors hover:text-base-content/70" data-reorder-target="handle" aria-label="Reorder <%= item.description %>">
+      <%= icon "grip-vertical", class: "size-4" %>
+    </button>
     <%= form_with url: project_item_path(project, item), method: :patch, data: { controller: "submit-on-change" } do %>
       <%= check_box_tag :completed, "1", item.completed?, id: dom_id(item, :completed), class: "checkbox", disabled: item.completed?, aria: { label: "Mark #{item.description} as completed" }, data: { action: "change->submit-on-change#submit" } %>
     <% end %>
+    <% if item.seen? %>
+      <span class="tooltip" data-tip="Seen" tabindex="0">
+        <%= icon "eye", class: "size-3.5" %>
+      </span>
+    <% end %>
     <%= link_to item.description, item_path(item), class: "min-w-0 truncate hover:underline #{"text-base-content/60 line-through" if item.completed?}" %>
   </div>
+  <% if item.attachments.any? %>
+    <span class="badge shrink-0 gap-1 badge-ghost" title="<%= item.attachments.size %> image<%= "s" if item.attachments.size != 1 %>">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-3.5" aria-hidden="true">
+        <path d="m15.5 2.5 2.5 2.5v10a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2h11Z" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <circle cx="8" cy="8" r="1.75" />
+        <path d="M4 15.5 8 12l3 2.5 2.5-2 2.5 3" fill="none" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+      <%= item.attachments.size %>
+    </span>
+  <% end %>
   <% if item.due_at.present? %>
     <span class="badge shrink-0 <%= item.overdue? ? "badge-error" : "badge-ghost" %>"><%= item.due_at.to_fs(:short) %></span>
   <% end %>
-  <span class="badge shrink-0 <%= item.completed? ? "badge-success" : "badge-warning" %>"><%= item.current_state %></span>
+  <span class="badge shrink-0 <%= item.completed? ? "badge-success" : item.seen? ? "badge-info" : "badge-warning" %>"><%= item.current_state %></span>
 </li>

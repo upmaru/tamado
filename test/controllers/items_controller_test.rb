@@ -64,13 +64,48 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "does not duplicate an item's initial pending transition" do
+  test "showing an item marks it as seen and attributes the transition to the viewer" do
+    item = Item.create!(list: lists(:one), description: "Take out recycling", creator: users(:one))
+    assert_equal "pending", item.current_state
+
+    get item_path(item)
+
+    assert_response :success
+    assert item.reload.seen?
+    transition = item.state_transitions.order(:created_at).last
+    assert_equal "seen", transition.event
+    assert_equal "pending", transition.from
+    assert_equal "seen", transition.to
+    assert_equal users(:one).id, transition.user_id
+  end
+
+  test "showing an already seen item does not record another transition" do
+    item = items(:four)
+
+    assert_no_difference "Item::StateTransition.count" do
+      get item_path(item)
+    end
+
+    assert_response :success
+  end
+
+  test "showing an item does not duplicate its initial pending transition" do
     item = Item.create!(list: lists(:one), description: "Take out recycling", creator: users(:one))
 
     get item_path(item)
 
     assert_select "p", /Created as/
-    assert_select "p", { text: /Changed from/, count: 0 }
+    assert_select "p", { text: /Changed from/, count: 1 }
+    assert_select "p", { text: /Changed from pending to seen/, count: 1 }
+  end
+
+  test "shows a seen item's audit trail" do
+    get item_path(items(:four))
+
+    assert_response :success
+    assert_select "h1", items(:four).description
+    assert_select "span.badge-info", "seen"
+    assert_select "p", { text: /Changed from pending to seen/, count: 1 }
   end
 
   test "shows the edit page with the current description" do
@@ -121,6 +156,22 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to project_path(projects(:one))
     assert item.reload.completed?
     assert_equal users(:one).id, item.state_transitions.order(:created_at).last.user_id
+  end
+
+  test "completes a seen item and attributes the transition to the actor" do
+    item = items(:four)
+
+    assert_difference "Item::StateTransition.count", 1 do
+      patch project_item_path(projects(:one), item)
+    end
+
+    assert_redirected_to project_path(projects(:one))
+    assert item.reload.completed?
+    transition = item.state_transitions.order(:created_at).last
+    assert_equal "complete", transition.event
+    assert_equal "seen", transition.from
+    assert_equal "completed", transition.to
+    assert_equal users(:one).id, transition.user_id
   end
 
   test "cannot update another user's item" do

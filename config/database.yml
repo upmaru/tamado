@@ -26,6 +26,8 @@ default: &default
 development:
   <<: *default
   database: tamado_development
+  # Runs against the Postgres service from `docker compose` (see docker-compose.yml).
+  port: 5433
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.

@@ -7,6 +7,45 @@
   <%= link_to "Edit", edit_item_path(@item), class: "btn btn-ghost" %>
 </header>
 
+<section class="card mt-8 bg-base-100 shadow-sm" data-controller="dropzone">
+  <div class="card-body">
+    <h2 class="card-title">Attachments</h2>
+
+    <%= form_with url: item_attachments_path(@item), scope: :item, method: :post do |form| %>
+      <%= form.file_field :attachments, multiple: true, direct_upload: true, data: { dropzone_target: "fileInput" }, class: "hidden" %>
+    <% end %>
+
+    <div data-dropzone-target="dropArea"
+         class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-base-300 bg-base-200/40 p-8 text-center transition-colors hover:border-base-400">
+      <%= icon "cloud-upload", class: "size-8 text-base-content/40" %>
+      <span class="text-sm text-base-content/60">Drop files here, or click to browse</span>
+    </div>
+
+    <% if @item.attachments.any? %>
+      <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <% @item.attachments.each do |attachment| %>
+          <li class="group relative">
+            <% if attachment_is_image?(attachment) %>
+              <%= link_to image_tag(attachment.variant(:thumb), class: "aspect-square w-full rounded-lg object-cover transition-opacity hover:opacity-90"), url_for(attachment), target: "_blank", rel: "noopener" %>
+            <% else %>
+              <%= link_to url_for(attachment), target: "_blank", rel: "noopener", class: "flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-lg bg-base-200 p-3 transition-opacity hover:opacity-90" do %>
+                <%= attachment_icon(attachment) %>
+                <span class="w-full truncate text-center text-xs text-base-content/60"><%= attachment.filename %></span>
+              <% end %>
+            <% end %>
+
+            <%= button_to item_attachment_path(@item, attachment), method: :delete,
+                  class: "absolute right-1 top-1 z-10 btn btn-circle btn-xs btn-error opacity-0 transition-opacity group-hover:opacity-100",
+                  form: { data: { turbo_confirm: "Remove #{attachment.filename}?" } } do %>
+              <%= icon "x", class: "size-3" %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</section>
+
 <section class="card mt-8 bg-base-100 shadow-sm">
   <div class="card-body">
     <div class="flex items-center justify-between gap-4">
@@ -64,7 +103,7 @@
           <div class="timeline-end timeline-box">
             <p class="font-medium">
               Changed from <span class="badge badge-ghost"><%= transition.from %></span> to
-              <span class="badge <%= transition.to == "completed" ? "badge-success" : "badge-ghost" %>"><%= transition.to %></span>
+              <span class="badge <%= transition.to == "completed" ? "badge-success" : transition.to == "seen" ? "badge-info" : "badge-ghost" %>"><%= transition.to %></span>
             </p>
             <p class="text-sm text-base-content/60">by <%= transition.user.email %></p>
             <time class="mt-1 block text-sm text-base-content/60" datetime="<%= transition.created_at.iso8601 %>"><%= transition.created_at.to_fs(:long) %></time>

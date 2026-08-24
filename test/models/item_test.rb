@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ItemTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   test "new item defaults to pending state" do
     item = Item.new(list: lists(:one))
 
@@ -25,6 +27,95 @@ class ItemTest < ActiveSupport::TestCase
 
   test "pending item can be completed" do
     item = items(:one)
+
+    assert item.can_complete?
+    item.actor = users(:one)
+    item.complete!
+
+    assert item.completed?
+    assert_equal "completed", item.reload.current_state
+  end
+
+  test "pending item can be marked as seen" do
+    item = items(:one)
+
+    assert item.can_seen?
+    item.actor = users(:one)
+    item.seen!
+
+    assert item.seen?
+    refute item.completed?
+    assert_equal "seen", item.reload.current_state
+  end
+
+  test "seen item cannot be marked as seen again" do
+    item = items(:one)
+    item.actor = users(:one)
+    item.seen!
+
+    assert_not item.can_seen?
+    assert_raises(StateMachines::InvalidTransition) do
+      item.seen!
+    end
+  end
+
+  test "completed item cannot be marked as seen" do
+    item = items(:one)
+    item.actor = users(:one)
+    item.complete!
+
+    assert_raises(StateMachines::InvalidTransition) do
+      item.seen!
+    end
+  end
+
+  test "marking an item as seen records an audit trail transition attributed to the actor" do
+    item = items(:one)
+    ids_before = item.state_transitions.pluck(:id)
+
+    item.actor = users(:one)
+    item.seen!
+
+    new_transitions = item.state_transitions.where.not(id: ids_before).to_a
+    assert_equal 1, new_transitions.size
+    assert_equal "seen", new_transitions.first.event
+    assert_equal "pending", new_transitions.first.from
+    assert_equal "seen", new_transitions.first.to
+    assert_equal users(:one).id, new_transitions.first.user_id
+  end
+
+  test "a new item is appended to the end of its list" do
+    item = Item.create!(list: lists(:one), description: "Buy flour", creator: users(:one))
+
+    assert_equal 4, item.position
+    assert_equal [ items(:one), items(:three), items(:four), item ].map(&:id), lists(:one).items.map(&:id)
+  end
+
+  test "item positions are scoped per list" do
+    item = Item.create!(list: lists(:two), description: "Buy honey", creator: users(:two))
+
+    assert_equal 2, item.position
+    assert_equal 1, items(:two).reload.position
+  end
+
+  test "moving an item renumbers the rest of its list" do
+    assert items(:four).move_higher
+
+    assert_equal 1, items(:one).reload.position
+    assert_equal 2, items(:four).reload.position
+    assert_equal 3, items(:three).reload.position
+  end
+
+  test "destroying an item renumbers the rest of its list" do
+    items(:one).destroy
+
+    assert_equal 1, items(:three).reload.position
+    assert_equal 2, items(:four).reload.position
+    assert_equal 1, items(:two).reload.position
+  end
+
+  test "seen item can be completed" do
+    item = items(:four)
 
     assert item.can_complete?
     item.actor = users(:one)
@@ -131,5 +222,27 @@ class ItemTest < ActiveSupport::TestCase
     item.due_at = Time.current - 1.hour
 
     refute Item.find(item.id).overdue?
+  end
+
+  test "an item can have many attachments" do
+    item = Item.create!(list: lists(:one), description: "Take out recycling", creator: users(:one))
+
+    item.attachments.attach(sample_image("a.png"))
+    item.attachments.attach(sample_image("b.png"))
+
+    assert_equal 2, item.attachments.count
+  end
+
+  test "destroying an item purges its attachments" do
+    item = Item.create!(list: lists(:one), description: "Take out recycling", creator: users(:one))
+    item.attachments.attach(sample_image("a.png"))
+
+    assert_difference "ActiveStorage::Attachment.count", -1 do
+      perform_enqueued_jobs { item.destroy }
+    end
+  end
+
+  def sample_image(filename)
+    { io: File.open(Rails.root.join("test/fixtures/files/sample.png")), filename: filename, content_type: "image/png" }
   end
 end

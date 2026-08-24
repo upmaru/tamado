@@ -25,7 +25,7 @@
             <p id="<%= dom_id(list, :empty) %>" class="text-sm text-base-content/60">No items in this list yet.</p>
           <% end %>
 
-          <ul id="<%= dom_id(list, :items) %>" class="divide-y divide-base-300">
+          <ul id="<%= dom_id(list, :items) %>" class="divide-y divide-base-300" data-controller="reorder" data-reorder-url="<%= project_list_position_path(@project, list) %>">
             <%= render partial: "items/item", collection: list.items, as: :item, locals: { project: @project } %>
           </ul>
 

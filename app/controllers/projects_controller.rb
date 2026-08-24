@@ -5,7 +5,7 @@ class ProjectsController < ApplicationController
 
   def show
     @project = current_user.projects.find(params[:id])
-    @lists = @project.lists.includes(:items).order(:name)
+    @lists = @project.lists.includes(items: :attachments_attachments).order(:name)
   end
 
   def new

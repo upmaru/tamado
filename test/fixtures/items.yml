@@ -4,18 +4,30 @@ one:
   description: Buy milk
   list: one
   current_state: pending
+  position: 1
   creator: one
 
 two:
   description: Buy eggs
   list: two
   current_state: pending
+  position: 1
   creator: two
 
 three:
   description: Water the plants
   list: one
   current_state: completed
+  position: 2
   created_at: 2026-08-19 23:30:00
   updated_at: 2026-08-19 23:35:19
+  creator: one
+
+four:
+  description: Check the mail
+  list: one
+  current_state: seen
+  position: 3
+  created_at: 2026-08-20 08:00:00
+  updated_at: 2026-08-20 09:15:00
   creator: one

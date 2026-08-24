@@ -1,8 +1,13 @@
 class Item < ApplicationRecord
+  acts_as_list scope: :list
+
   belongs_to :list
   belongs_to :creator, class_name: "User", inverse_of: :created_items
   has_many :state_transitions, class_name: "Item::StateTransition", dependent: :destroy
   has_many :events, class_name: "Item::Event", dependent: :destroy
+  has_many_attached :attachments do |attachable|
+    attachable.variant :thumb, resize_to_limit: [ 400, 400 ]
+  end
 
   attr_accessor :actor
 
@@ -10,8 +15,12 @@ class Item < ApplicationRecord
 
   state_machine :current_state, initial: :pending do
     audit_trail class: Item::StateTransition, context: :user_id, initial: false
+    event :seen do
+      transition pending: :seen
+    end
+
     event :complete do
-      transition pending: :completed
+      transition pending: :completed, seen: :completed
     end
   end
 
