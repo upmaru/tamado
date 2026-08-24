@@ -26,13 +26,13 @@
         <div class="flex items-center gap-3 sm:gap-4">
           <span class="text-lg font-bold tracking-tight">Tamado</span>
           <ul class="menu menu-horizontal bg-base-200 rounded-box">
-            <li class="<%= "menu-active" if controller_name == "projects" %>">
-              <%= link_to projects_path, aria: { label: "Projects" } do %>
+            <li>
+              <%= link_to projects_path, class: controller_name == "projects" ? "menu-active" : nil, aria: { label: "Projects" } do %>
                 <%= icon "folder", class: "size-4" %>
               <% end %>
             </li>
-            <li class="<%= "menu-active" if controller_name == "items" %>">
-              <%= link_to items_path, aria: { label: "Items" } do %>
+            <li>
+              <%= link_to items_path, class: controller_name == "items" ? "menu-active" : nil, aria: { label: "Items" } do %>
                 <%= icon "list-checks", class: "size-4" %>
               <% end %>
             </li>
